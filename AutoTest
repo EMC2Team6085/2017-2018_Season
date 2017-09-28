@@ -1,0 +1,53 @@
+package org.firstinspires.ftc.teamcode.Season16and17;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
+
+@Autonomous(name="Test: AutoTouch", group="Test")
+@Disabled
+public class AutoTest extends LinearOpMode
+{
+        public DcMotor leftMotor;
+        public DcMotor rightMotor;
+
+        /* Declare OpMode members. */
+        HardwareMapping robot = new HardwareMapping(); // use the class created to define a Pushbot's hardware
+        TouchSensor touchSensor;
+
+    @Override
+    public void runOpMode () throws InterruptedException
+    {
+        waitForStart();
+
+        DriveForward (0.5);
+        sleep(3000);
+        stopDriving();
+
+        TurnRight(0.5);
+        sleep(1000);
+        stopDriving();
+    }
+
+    public void DriveForward (double power)
+    {
+        leftMotor.setPower(power);
+        rightMotor.setPower(power);
+    }
+
+    public void stopDriving ()
+    {
+        DriveForward(0);
+    }
+
+    public void TurnRight (double power)
+    {
+        rightMotor.setPower (-power);
+        leftMotor.setPower (power);
+    }
+}
