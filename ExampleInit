@@ -1,0 +1,33 @@
+package org.firstinspires.ftc.teamcode.Season16and17;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name="Intro", group="Intro")
+
+public class ExampleInit {
+
+    HardwareMap hwMap = null;
+
+    public void init(HardwareMap ahwMap) {
+
+        hwMap = ahwMap;
+
+        DcMotor leftmotor = null;
+        DcMotor rightmotor = null;
+        DcMotor upmotor = null;
+        DcMotor reversemotor = null;
+        TouchSensor touchSensor = null;
+
+        leftmotor = hwMap.dcMotor.get("motor_left");
+        rightmotor = hwMap.dcMotor.get("motor_right");
+        upmotor = hwMap.dcMotor.get("motor_up");
+        touchSensor = hwMap.touchSensor.get("touch");
+
+        leftmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    }
+}
