@@ -1,0 +1,164 @@
+package org.firstinspires.ftc.teamcode.Season16and17;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.robot.Robot;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Season16and17.HardwareMapping;
+
+/**
+ * Created by colin on 10/27/16.
+ */
+
+@TeleOp(name="FINAL: Competition", group="Comp")
+@Disabled
+public class CompetitionTeleOp extends OpMode{
+
+    /* Declare OpMode members. */
+    HardwareMapping robot = new HardwareMapping(); // use the class created to define a Pushbot's hardware
+    // could also use HardwarePushbotMatrix class.
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
+    @Override
+    public void init() {
+        /* Initialize the hardware variables.
+         * The init() method of the hardware class does all the work here
+         */
+        robot.init(hardwareMap);
+
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Say", "Hello Driver");    //
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        double left;
+        double right;
+        double grabLeft;
+
+        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
+        left = -gamepad1.left_stick_y;
+        right = -gamepad1.right_stick_y;
+        robot.leftMotor.setPower(left);
+        robot.rightMotor.setPower(-right);
+
+        // Use dpad up or down to raise and lower the linear slides
+        if (gamepad1.dpad_up)
+            robot.linearslides.setPower(0.25);
+        else if (gamepad1.dpad_down)
+            robot.linearslides.setPower(-0.25);
+        else
+            robot.linearslides.setPower(0.0);
+
+        ////////////////////////////////////////////////////////////////
+        // ARM POSITIONING
+        //
+        // Definitions
+        // -----------
+        // "Side"   - arms positioned along side
+        // "Ready"  - arms toward front ready to grab
+        // "Grab"   - arms actively grabbing object (cap ball)
+        //
+        // Rationale
+        // ---------
+        // The objective is to have the arms remain in "Side" position
+        // unless commanded to move out of that position or commanded
+        // to return to that position.
+        //
+        // The [A] button on gamepad is the command to move the arms
+        // into the "Ready" position.  A single press of the [A] button
+        // will move the arms to the "Ready" position.
+        //
+        // The [Left D Pad] on gamepad is the command to move the arms
+        // into the "Grab" position.  A continuously-held [Left D Pad]
+        // will move/retain the arms in the "Grab" position.
+        //
+        // The [X] button on gamepad is the command to move the arms
+        // into the "Side" position.
+        //
+        // Additional Notes
+        // ----------------
+        // There was NO documentation found regarding the setPosition()
+        // function argument.  The numbers used were determined throughwh
+        // a painful and time-consuming process of trial and error.  The
+        // importance of well-documented code cannot be overstated.
+
+
+        // Side [X]
+        //---------
+        //if (gamepad1.x) {
+           // robot.grabLeft.setPosition(0.0);
+            //    if robot.grabLeft<(1.0);
+             //else robot.grabLeft=robot.grabLeft + 0.1;
+             //   if robot.grabLeft=(1.0)
+            //return;robot.grabLeft=robot.grabLeft
+          //  robot.grabRight.setPosition(0.5);
+        //}
+
+        // Ready [A]
+        //----------
+        if (gamepad1.a) {
+            robot.grab.setPosition(0.5);
+        }
+
+        // Grab [Left D Pad]
+        //------------------
+        if (gamepad1.dpad_left) {
+            robot.grab.setPosition(1.0);
+            robot.grab.setPosition(1.0);
+        }
+
+        // ARM POSITIONING
+        ////////////////////////////////////////////////////////////////
+
+        //Control the flipper with Gamepad2's bumpers
+        if (gamepad2.right_bumper)
+            robot.frontFlipper.setPower(1.0);
+        else if (gamepad2.left_bumper)
+            robot.frontFlipper.setPower(-1.0);
+        else
+            robot.frontFlipper.setPower(0.0);
+
+        //
+        if (gamepad2.dpad_up)
+            robot.verticalBelt.setPower(0.5);
+        else if (gamepad2.dpad_down)
+            robot.verticalBelt.setPower(-0.5);
+        else
+            robot.verticalBelt.setPower(0.0);
+
+        //Move top spinners forward and reverse by using the dpad left and right on Gamepad2
+        if (gamepad2.dpad_right) {
+            robot.spinnerLeft.setPower(-1.0);
+            robot.spinnerRight.setPower(-1.0);
+        } else {
+            robot.spinnerLeft.setPower(0.0);
+            robot.spinnerRight.setPower(0.0);
+        }
+    }
+}
