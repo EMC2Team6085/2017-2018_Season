@@ -1,0 +1,131 @@
+
+package org.firstinspires.ftc.teamcode.Season16and17;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.Season16and17.HardwareMapping;
+
+@TeleOp(name="FINAL: Competition v2.0", group="Comp")
+public class CompNewVersion extends OpMode{
+
+    /* Declare OpMode members. */
+    HardwareMapping robot = new HardwareMapping(); // use the class created to define a Pushbot's hardware
+    // could also use HardwarePushbotMatrix class.
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
+    @Override
+    public void init() {
+     /* Initialize the hardware variables.
+      * The init() method of the hardware class does all the work here
+      */
+        robot.init(hardwareMap);
+
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Say", "Hello Neo");    //
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        double left;
+        double right;
+
+        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
+        left = -gamepad1.left_stick_y;
+        right = -gamepad1.right_stick_y;
+        robot.leftMotor.setPower(left);
+        robot.rightMotor.setPower(-right);
+
+
+        // Use dpad up or down to raise and lower the linear slides
+        double OFF = 0.0;
+        double FULLPOWER = 1.0;
+        double HALFPOWER = 0.5;
+
+        //Linear Slide Control
+        if (gamepad2.dpad_up)
+            robot.linearslides.setPower(HALFPOWER);
+        else if (gamepad2.dpad_down)
+            robot.linearslides.setPower(-HALFPOWER);
+        else
+            robot.linearslides.setPower(OFF);
+
+
+
+        // Ready [A]
+        //----------
+        if (gamepad2.a) {
+            robot.grab.setPosition(1);
+        }
+
+
+        // Grab [B]
+        //------------------
+        if (gamepad2.b) {
+            robot.grab.setPosition(.6);
+            //robot.lightSwitch.setPosition(0.5);
+        }
+
+        //Home (Back to Start) [X]
+        //------------------------
+        if (gamepad2.x) {
+            robot.grab.setPosition(0);
+        }
+
+
+        //Control the flipper with Gamepad1's bumpers
+        if (gamepad1.left_bumper)
+            robot.frontFlipper.setPower(FULLPOWER);
+
+        if (gamepad1.right_bumper)
+            robot.frontFlipper.setPower(-FULLPOWER);
+
+        if (gamepad1.y)
+            robot.frontFlipper.setPower(0.0);
+
+
+        //Control vertical belt with dpad
+        if (gamepad1.dpad_up)
+            robot.verticalBelt.setPower(-FULLPOWER);
+        else if (gamepad1.dpad_down)
+            robot.verticalBelt.setPower(HALFPOWER);
+        else
+            robot.verticalBelt.setPower(OFF);
+
+
+        //Move Beacon Switch to left and right using A and B on Gamepad1
+        //if (gamepad1.a)
+            //robot.lightSwitch.setPosition(1);
+        //if (gamepad1.b)
+            //robot.lightSwitch.setPosition(-1);
+
+
+        //Move top spinners forward and reverse by using the dpad left and right on Gamepad1
+        if (gamepad1.dpad_right) {
+            robot.spinnerLeft.setPower(1.0);
+            robot.spinnerRight.setPower(-1.0);
+        }
+        if (gamepad1.dpad_left) {
+            robot.spinnerLeft.setPower(0.0);
+            robot.spinnerRight.setPower(0.0);
+        }
+    }
+}
