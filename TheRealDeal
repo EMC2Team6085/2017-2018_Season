@@ -1,0 +1,132 @@
+package org.firstinspires.ftc.teamcode.Season17and18;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name="TheRealDeal", group="TeleOp17")
+public class TheRealDeal extends OpMode {
+
+
+    private static final double STRAFE_POWER = 0.7;
+    private static final double servoPos2 = 0.85;
+    private static final double servoPos1 = 0.3;
+    private static final double liftFloor = 0;
+    private static final double liftMid = 1050;
+    private static final double liftCeil = 2300;
+    private static final double liftSpeed = 0.3;
+    HardwareMapping robot = new HardwareMapping();
+
+    @Override
+    public void init() {
+       /* Initialize the hardware variables.
+        * The init() method of the hardware class does all the work here
+        */
+        robot.init(hardwareMap);
+        robot.LeftBalance.setPosition(servoPos1);
+        robot.RightBalance.setPosition(1-servoPos1);
+        robot.GlyphLift.setTargetPosition(0);
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Say", "Hello Driver");
+    }
+
+    @Override
+    public void loop() {
+        double left;
+        double right;
+        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
+        left = -gamepad1.left_stick_y;
+        right = -gamepad1.right_stick_y;
+
+
+        //Strafe Right
+        if (gamepad1.dpad_right){
+            //Right Side
+            robot.FrontRight.setPower(STRAFE_POWER);
+            robot.RearRight.setPower(-STRAFE_POWER);
+
+            //Left Side
+            robot.FrontLeft.setPower(STRAFE_POWER);
+            robot.RearLeft.setPower(-STRAFE_POWER);
+        }
+        else
+        if (gamepad1.dpad_left){
+            //Strafe Right
+
+            //Right Side
+            robot.FrontRight.setPower(-STRAFE_POWER);
+            robot.RearRight.setPower(STRAFE_POWER);
+
+            //Left Side
+            robot.FrontLeft.setPower(-STRAFE_POWER);
+            robot.RearLeft.setPower(STRAFE_POWER);
+        }
+        else {
+            //Strafe Left
+
+            //Left Side
+            robot.FrontLeft.setPower(left);
+            robot.RearLeft.setPower(left);
+
+            //Right Side
+            robot.FrontRight.setPower(-right);
+            robot.RearRight.setPower(-right);
+        }
+
+        if (gamepad1.a){
+            robot.LeftBalance.setPosition(servoPos2);
+            robot.RightBalance.setPosition(1-servoPos2);
+        }
+        if (gamepad1.b){
+            robot.LeftBalance.setPosition(servoPos1);
+            robot.RightBalance.setPosition(1-servoPos1);
+        }
+
+        // Set GlyphLift Encoders to a certain position then power motor until they reach their target destination.
+        if (gamepad2.dpad_down) {
+            robot.GlyphLift.setTargetPosition(0);
+            if (robot.GlyphLift.getCurrentPosition() > liftFloor) {
+                robot.GlyphLift.setPower(-liftSpeed);
+            }
+            else if (robot.GlyphLift.getCurrentPosition() < liftFloor) {
+                robot.GlyphLift.setPower(liftSpeed);
+            }
+        }
+        else if (gamepad2.dpad_left) {
+            robot.GlyphLift.setTargetPosition(1050);
+            if (robot.GlyphLift.getCurrentPosition() > liftMid) {
+                robot.GlyphLift.setPower(-liftSpeed);
+            } else if (robot.GlyphLift.getCurrentPosition() < liftMid) {
+                robot.GlyphLift.setPower(liftSpeed);
+            }
+        }
+        else if (gamepad2.dpad_up) {
+            robot.GlyphLift.setTargetPosition(2300);
+            if (robot.GlyphLift.getCurrentPosition() > liftCeil) {
+                robot.GlyphLift.setPower(-liftSpeed);
+            }
+            else if (robot.GlyphLift.getCurrentPosition() < liftCeil) {
+                robot.GlyphLift.setPower(liftSpeed);
+            }
+        }
+        else {}
+        // Send telemetry message to signify robot running;
+        telemetry.addData("left", "%.2f", left);
+        telemetry.addData("right", "%.2f", right);
+        telemetry.addData("FR_Power", "%.2f",robot.FrontRight.getPower());
+        telemetry.addData("RR_Power", "%.2f",robot.RearRight.getPower());
+        telemetry.addData("FL_Power", "%.2f",robot.FrontLeft.getPower());
+        telemetry.addData("RL_Power", "%.2f",robot.RearLeft.getPower());
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.addData("Left Balance Position", robot.LeftBalance.getPosition());
+        telemetry.addData("Right Balance Position", robot.RightBalance.getPosition());
+        telemetry.addData("GlyphLift Current Position", robot.GlyphLift.getCurrentPosition());
+        telemetry.addData("GlyphLift Target Position", robot.GlyphLift.getTargetPosition());
+        telemetry.addData("GlyphLift Power", robot.GlyphLift.getPower());
+
+        telemetry.update();
+
+    }
+}
