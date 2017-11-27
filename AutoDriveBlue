@@ -7,7 +7,6 @@ import android.view.View;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name="AutoDriveBlue", group="Autonomous")
 
@@ -20,18 +19,19 @@ public class AutoDriveBlue extends LinearOpMode {
     ColorSensor colorSensor;
 
     public void runOpMode() throws InterruptedException{
-        waitForStart();
+        robot.gemServo.setPosition(1);
         robot.init(hardwareMap);
         robot.LeftBalance.setPosition(servoPos1);
         robot.RightBalance.setPosition(1 - servoPos1);
         robot.GlyphLift.setTargetPosition(0);
-        robot.gemServo.setPosition(1);
         robot.leftPaddle.setPosition(0.5);
         robot.rightPaddle.setPosition(0.5);
-        sleep(1000);
+        showTelemetry();
+        waitForStart();
         robot.gemServo.setPosition(0.3);
         sleep(2000);
-        while (i < 5000) {
+        while (i < 50) {
+            showTelemetry();
 
             float hsvValues[] = {0F, 0F, 0F};
 
@@ -49,6 +49,8 @@ public class AutoDriveBlue extends LinearOpMode {
             telemetry.addData("Green", colorSensor.green());
             telemetry.addData("Blue ", colorSensor.blue());
             telemetry.addData("Hue", hsvValues[0]);
+
+            showTelemetry();
 
             relativeLayout.post(new Runnable() {
                     public void run() {
@@ -109,6 +111,14 @@ public class AutoDriveBlue extends LinearOpMode {
         robot.RearLeft.setPower(STRAFE_POWER);
         robot.FrontRight.setPower(STRAFE_POWER);
         robot.RearRight.setPower(-STRAFE_POWER);
+    }
+
+    void showTelemetry (){
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.update();
     }
 
 
