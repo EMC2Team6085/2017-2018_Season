@@ -177,3 +177,24 @@
         robot.rightPaddle.setPosition(0.7);
         robot.leftPaddle.setPosition(0.44);
     }
+
+SECOND HALF
+
+
+
+
+
+
+            if (colorSensor.blue() >= 2) {
+                telemetry.addData("BLUE BLUE BLUE", colorSensor.blue());
+                //move the opposite way the sensor is facing
+                **DriveStraight(0.2, -360);**
+                telemetry.update();
+                i = 500;
+            } else if (colorSensor.red() >= 2) {
+                telemetry.addData("RED RED RED", colorSensor.red());
+                //move the way the sensor is facing
+                **DriveStraight(0.2, 360);**
+                telemetry.update();
+                i = 500;
+            }
