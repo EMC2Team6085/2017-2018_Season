@@ -1,0 +1,276 @@
+package org.firstinspires.ftc.teamcode.Season17and18;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
+@Autonomous(name="AutoDriveBlue", group="Autonomous")
+
+public class AutoDriveBlue extends LinearOpMode {
+    double i = 0;
+    private static final double servoPos2 = 0.85;
+    private static final double servoPos1 = 0.3;
+    private static final double STRAFE_POWER = 0.7;
+    HardwareMapping robot = new HardwareMapping();
+    ColorSensor colorSensor;
+
+    public void runOpMode() throws InterruptedException {
+        robot.init(hardwareMap);
+        robot.LeftBalance.setPosition(servoPos1);
+        robot.RightBalance.setPosition(1 - servoPos1);
+        robot.GlyphLift.setTargetPosition(0);
+        showTelemetry();
+        waitForStart();
+        robot.leftPaddle.setPosition(0.64);
+        sleep(500);
+        robot.rightPaddle.setPosition(0.5);
+        robot.gemServo.setPosition(0.3);
+        sleep(1000);
+        ColorSense();
+    }
+
+    void ColorSense() {
+        while (i < 50) {
+            showTelemetry();
+
+            float hsvValues[] = {0F, 0F, 0F};
+
+            final float values[] = hsvValues;
+
+            int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
+            final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
+
+            colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+
+
+            Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+            telemetry.addData("Clear", colorSensor.alpha());
+            telemetry.addData("Red  ", colorSensor.red());
+            telemetry.addData("Green", colorSensor.green());
+            telemetry.addData("Blue ", colorSensor.blue());
+            telemetry.addData("Hue", hsvValues[0]);
+
+            showTelemetry();
+
+            relativeLayout.post(new Runnable() {
+                public void run() {
+                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+                }
+            });
+
+            telemetry.update();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            i = i + 1;
+            if (colorSensor.blue() >= 2) {
+                telemetry.addData("BLUE BLUE BLUE", colorSensor.blue());
+                //move the opposite way the sensor is facing
+                DriveStraight(0.2, -360);
+                telemetry.update();
+                i = 500;
+            } else if (colorSensor.red() >= 2) {
+                telemetry.addData("RED RED RED", colorSensor.red());
+                //move the way the sensor is facing
+                DriveStraight(0.2, 360);
+                telemetry.update();
+                i = 500;
+            }
+        }
+    }
+
+    void DriveStraight (double power, int position) {
+        robot.FrontRight.setTargetPosition(position);
+        if (robot.FrontRight.getCurrentPosition() > position - 2) {
+            robot.FrontRight.setPower(-power);
+        }
+        else if (robot.FrontRight.getCurrentPosition() < position + 2){
+            robot.FrontRight.setPower(power);
+        }
+
+        robot.FrontLeft.setTargetPosition(position);
+        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
+            robot.FrontLeft.setPower(-power);
+        }
+        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
+            robot.FrontLeft.setPower(power);
+        }
+
+        robot.RearRight.setTargetPosition(position);
+        if (robot.RearRight.getCurrentPosition() > position - 2) {
+            robot.RearRight.setPower(-power);
+        }
+        else if (robot.RearRight.getCurrentPosition() < position + 2){
+            robot.RearRight.setPower(power);
+        }
+
+        robot.RearLeft.setTargetPosition(position);
+        if (robot.RearLeft.getCurrentPosition() > position - 2) {
+            robot.RearLeft.setPower(-power);
+        }
+        else if (robot.RearLeft.getCurrentPosition() < position + 2){
+            robot.RearLeft.setPower(power);
+        }
+    }
+
+    void TurnRight (double power, int position){
+        robot.FrontRight.setTargetPosition(-position);
+        if (robot.FrontRight.getCurrentPosition() > -position - 2) {
+            robot.FrontRight.setPower(-power);
+        }
+        else if (robot.FrontRight.getCurrentPosition() < -position + 2){
+            robot.FrontRight.setPower(power);
+        }
+
+        robot.FrontLeft.setTargetPosition(position);
+        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
+            robot.FrontLeft.setPower(-power);
+        }
+        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
+            robot.FrontLeft.setPower(power);
+        }
+
+        robot.RearRight.setTargetPosition(-position);
+        if (robot.RearRight.getCurrentPosition() > -position - 2) {
+            robot.RearRight.setPower(-power);
+        }
+        else if (robot.RearRight.getCurrentPosition() < -position + 2){
+            robot.RearRight.setPower(power);
+        }
+
+        robot.RearLeft.setTargetPosition(position);
+        if (robot.RearLeft.getCurrentPosition() > position - 2) {
+            robot.RearLeft.setPower(-power);
+        }
+        else if (robot.RearLeft.getCurrentPosition() < position + 2) {
+            robot.RearLeft.setPower(power);
+        }
+    }
+
+    void TurnLeft (double power, int position){
+        robot.FrontRight.setTargetPosition(position);
+        if (robot.FrontRight.getCurrentPosition() > position - 2) {
+            robot.FrontRight.setPower(-power);
+        }
+        else if (robot.FrontRight.getCurrentPosition() < position + 2){
+            robot.FrontRight.setPower(power);
+        }
+
+        robot.FrontLeft.setTargetPosition(-position);
+        if (robot.FrontLeft.getCurrentPosition() > -position - 2) {
+            robot.FrontLeft.setPower(-power);
+        }
+        else if (robot.FrontLeft.getCurrentPosition() < -position + 2){
+            robot.FrontLeft.setPower(power);
+        }
+
+        robot.RearRight.setTargetPosition(position);
+        if (robot.RearRight.getCurrentPosition() > position - 2) {
+            robot.RearRight.setPower(-power);
+        }
+        else if (robot.RearRight.getCurrentPosition() < position + 2){
+            robot.RearRight.setPower(power);
+        }
+
+        robot.RearLeft.setTargetPosition(-position);
+        if (robot.RearLeft.getCurrentPosition() > -position - 2) {
+            robot.RearLeft.setPower(-power);
+        }
+        else if (robot.RearLeft.getCurrentPosition() < -position + 2) {
+            robot.RearLeft.setPower(power);
+        }
+    }
+
+    void StrafeRight (int position){
+        robot.FrontRight.setTargetPosition(-position);
+        if (robot.FrontRight.getCurrentPosition() > -position - 2) {
+            robot.FrontRight.setPower(-0.7);
+        }
+        else if (robot.FrontRight.getCurrentPosition() < -position + 2){
+            robot.FrontRight.setPower(0.7);
+        }
+
+        robot.FrontLeft.setTargetPosition(position);
+        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
+            robot.FrontLeft.setPower(-0.7);
+        }
+        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
+            robot.FrontLeft.setPower(0.7);
+        }
+
+        robot.RearRight.setTargetPosition(position);
+        if (robot.RearRight.getCurrentPosition() > position - 2) {
+            robot.RearRight.setPower(-0.7);
+        }
+        else if (robot.RearRight.getCurrentPosition() < position + 2){
+            robot.RearRight.setPower(0.7);
+        }
+
+        robot.RearLeft.setTargetPosition(-position);
+        if (robot.RearLeft.getCurrentPosition() > -position - 2) {
+            robot.RearLeft.setPower(-0.7);
+        }
+        else if (robot.RearLeft.getCurrentPosition() < -position + 2) {
+            robot.RearLeft.setPower(0.7);
+        }
+    }
+
+    void StrafeLeft (int position){
+        robot.FrontRight.setTargetPosition(position);
+        if (robot.FrontRight.getCurrentPosition() > position - 2) {
+            robot.FrontRight.setPower(-0.7);
+        }
+        else if (robot.FrontRight.getCurrentPosition() < position + 2){
+            robot.FrontRight.setPower(0.7);
+        }
+
+        robot.FrontLeft.setTargetPosition(-position);
+        if (robot.FrontLeft.getCurrentPosition() > -position - 2) {
+            robot.FrontLeft.setPower(-0.7);
+        }
+        else if (robot.FrontLeft.getCurrentPosition() < -position + 2){
+            robot.FrontLeft.setPower(0.7);
+        }
+
+        robot.RearRight.setTargetPosition(-position);
+        if (robot.RearRight.getCurrentPosition() > -position - 2) {
+            robot.RearRight.setPower(-0.7);
+        }
+        else if (robot.RearRight.getCurrentPosition() < -position + 2){
+            robot.RearRight.setPower(0.7);
+        }
+
+        robot.RearLeft.setTargetPosition(position);
+        if (robot.RearLeft.getCurrentPosition() > position - 2) {
+            robot.RearLeft.setPower(-0.7);
+        }
+        else if (robot.RearLeft.getCurrentPosition() < position + 2) {
+            robot.RearLeft.setPower(0.7);
+        }
+    }
+
+    void ClawGrab () {
+        robot.rightPaddle.setPosition(0.5);
+        robot.leftPaddle.setPosition(0.64);
+    }
+
+    void ClawRelease () {
+        robot.rightPaddle.setPosition(0.7);
+        robot.leftPaddle.setPosition(0.44);
+    }
+
+    void showTelemetry (){
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.update();
+    }
+
+}
