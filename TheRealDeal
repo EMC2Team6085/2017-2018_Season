@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode.Season17and18;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="TheRealDeal", group="TeleOp17")
 public class TheRealDeal extends OpMode {
 
-    private static final double STRAFE_POWER = 0.7;
+    private static final double STRAFE_POWER = 0.8;
     private static final double servoPos2 = 0.85;
     private static final double servoPos1 = 0.3;
     private static final double liftFloor = 0;
@@ -17,10 +18,20 @@ public class TheRealDeal extends OpMode {
 
     @Override
     public void init() {
-       /* Initialize the hardware variables.
-        * The init() method of the hardware class does all the work here
-        */
+      /* Initialize the hardware variables.
+       * The init() method of the hardware class does all the work here
+       */
         robot.init(hardwareMap);
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.GlyphLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.GlyphLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.LeftBalance.setPosition(servoPos1);
         robot.RightBalance.setPosition(1 - servoPos1);
         robot.GlyphLift.setTargetPosition(0);
@@ -30,34 +41,22 @@ public class TheRealDeal extends OpMode {
     }
     private void Paddle (double position){
         robot.rightPaddle.setPosition(position);
-        robot.leftPaddle.setPosition(1 - position + 0.02);
+        robot.leftPaddle.setPosition(1.14 - position);
     }
-        //public void Telemetry (double name, double object){
-            //telemetry.addData("name", )
-        //}
+    //public void Telemetry (double name, double object){
+    //telemetry.addData("name", )
+    //}
 
     @Override
     public void loop() {
         robot.gemServo.setPosition(1);
         double left;
         double right;
-        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
-        left = -gamepad1.left_stick_y;
+        // Run wheels in tank mode
         right = -gamepad1.right_stick_y;
+        left = -gamepad1.left_stick_y;
 
-
-        //Strafe Right
         if (gamepad1.dpad_right){
-            //Right Side
-            robot.FrontRight.setPower(-STRAFE_POWER);
-            robot.RearRight.setPower(STRAFE_POWER);
-
-            //Left Side
-            robot.FrontLeft.setPower(-STRAFE_POWER);
-            robot.RearLeft.setPower(STRAFE_POWER);
-        }
-        else
-        if (gamepad1.dpad_left){
             //Strafe Right
 
             //Right Side
@@ -68,8 +67,19 @@ public class TheRealDeal extends OpMode {
             robot.FrontLeft.setPower(STRAFE_POWER);
             robot.RearLeft.setPower(-STRAFE_POWER);
         }
-        else {
+        else
+        if (gamepad1.dpad_left){
             //Strafe Left
+
+            //Right Side
+            robot.FrontRight.setPower(-STRAFE_POWER);
+            robot.RearRight.setPower(STRAFE_POWER);
+
+            //Left Side
+            robot.FrontLeft.setPower(-STRAFE_POWER);
+            robot.RearLeft.setPower(STRAFE_POWER);
+        }
+        else {
 
             //Left Side
             robot.FrontLeft.setPower(left);
@@ -130,10 +140,10 @@ public class TheRealDeal extends OpMode {
         }
 
         if (gamepad2.b){
-            Paddle(0.5);
+            Paddle(0.45);
         }
         if (gamepad2.a){
-            Paddle(0.7);
+            Paddle(.65);
         }
         // Send telemetry message to signify robot running;
         telemetry.addData("left", "%.2f", left);
@@ -152,7 +162,6 @@ public class TheRealDeal extends OpMode {
         telemetry.addData("GlyphLift Target Position", robot.GlyphLift.getTargetPosition());
         telemetry.addData("GlyphLift Power", robot.GlyphLift.getPower());
         telemetry.addData("gemServo", robot.gemServo.getPosition());
-
         telemetry.update();
 
     }
