@@ -1,173 +1,166 @@
-    void DriveStraight (double power, int position) {
-        robot.FrontRight.setTargetPosition(position);
-        if (robot.FrontRight.getCurrentPosition() > position - 2) {
-            robot.FrontRight.setPower(-power);
-        }
-        else if (robot.FrontRight.getCurrentPosition() < position + 2){
-            robot.FrontRight.setPower(power);
-        }
+   package org.firstinspires.ftc.teamcode.Season17and18;
 
-        robot.FrontLeft.setTargetPosition(position);
-        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
-            robot.FrontLeft.setPower(-power);
-        }
-        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
-            robot.FrontLeft.setPower(power);
-        }
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
 
-        robot.RearRight.setTargetPosition(position);
-        if (robot.RearRight.getCurrentPosition() > position - 2) {
-            robot.RearRight.setPower(-power);
-        }
-        else if (robot.RearRight.getCurrentPosition() < position + 2){
-            robot.RearRight.setPower(power);
-        }
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.LightSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
-        robot.RearLeft.setTargetPosition(position);
-        if (robot.RearLeft.getCurrentPosition() > position - 2) {
-            robot.RearLeft.setPower(-power);
-        }
-        else if (robot.RearLeft.getCurrentPosition() < position + 2){
-            robot.RearLeft.setPower(power);
-        }
-    }
-    
-    void TurnRight (double power, int position){
-        robot.FrontRight.setTargetPosition(-position);
-        if (robot.FrontRight.getCurrentPosition() > -position - 2) {
-            robot.FrontRight.setPower(-power);
-        }
-        else if (robot.FrontRight.getCurrentPosition() < -position + 2){
-            robot.FrontRight.setPower(power);
-        }
+@Autonomous(name="AutoDriveBlue", group="Autonomous")
 
-        robot.FrontLeft.setTargetPosition(position);
-        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
-            robot.FrontLeft.setPower(-power);
-        }
-        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
-            robot.FrontLeft.setPower(power);
-        }
+public class AutoDriveBlue extends LinearOpMode {
+    double i = 0;
+    private static final double servoPos2 = 0.85;
+    private static final double servoPos1 = 0.3;
+    private static final double STRAFE_POWER = 0.7;
+    HardwareMapping robot = new HardwareMapping();
+    ColorSensor colorSensor;
 
-        robot.RearRight.setTargetPosition(-position);
-        if (robot.RearRight.getCurrentPosition() > -position - 2) {
-            robot.RearRight.setPower(-power);
-        }
-        else if (robot.RearRight.getCurrentPosition() < -position + 2){
-            robot.RearRight.setPower(power);
-        }
-
-        robot.RearLeft.setTargetPosition(position);
-        if (robot.RearLeft.getCurrentPosition() > position - 2) {
-            robot.RearLeft.setPower(-power);
-        }
-        else if (robot.RearLeft.getCurrentPosition() < position + 2) {
-            robot.RearLeft.setPower(power);
-        }
+    public void runOpMode() throws InterruptedException {
+        robot.init(hardwareMap);
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.LeftBalance.setPosition(servoPos1);
+        robot.RightBalance.setPosition(1 - servoPos1);
+        robot.GlyphLift.setTargetPosition(0);
+        robot.leftPaddle.setPosition(0.5);
+        robot.rightPaddle.setPosition(0.5);
+        Telemetry();
+        waitForStart();
+        sleep(50);
+        robot.gemServo.setPosition(0.5);
+        sleep(100);
+        ColorSense();
+        sleep(50);
+        robot.gemServo.setPosition(1);
+        sleep(500);
+        ReturnToStart(0, 0.5);
     }
 
-    void TurnLeft (double power, int position){
-        robot.FrontRight.setTargetPosition(position);
-        if (robot.FrontRight.getCurrentPosition() > position - 2) {
-            robot.FrontRight.setPower(-power);
-        }
-        else if (robot.FrontRight.getCurrentPosition() < position + 2){
-            robot.FrontRight.setPower(power);
-        }
+    void ColorSense() {
 
-        robot.FrontLeft.setTargetPosition(-position);
-        if (robot.FrontLeft.getCurrentPosition() > -position - 2) {
-            robot.FrontLeft.setPower(-power);
-        }
-        else if (robot.FrontLeft.getCurrentPosition() < -position + 2){
-            robot.FrontLeft.setPower(power);
-        }
+        while (i < 500) {
+            Telemetry();
+            float hsvValues[] = {0F, 0F, 0F};
 
-        robot.RearRight.setTargetPosition(position);
-        if (robot.RearRight.getCurrentPosition() > position - 2) {
-            robot.RearRight.setPower(-power);
-        }
-        else if (robot.RearRight.getCurrentPosition() < position + 2){
-            robot.RearRight.setPower(power);
-        }
+            final float values[] = hsvValues;
 
-        robot.RearLeft.setTargetPosition(-position);
-        if (robot.RearLeft.getCurrentPosition() > -position - 2) {
-            robot.RearLeft.setPower(-power);
-        }
-        else if (robot.RearLeft.getCurrentPosition() < -position + 2) {
-            robot.RearLeft.setPower(power);
+            int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
+            final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
+
+            colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+
+
+            Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+            telemetry.addData("Clear", colorSensor.alpha());
+            telemetry.addData("Red  ", colorSensor.red());
+            telemetry.addData("Green", colorSensor.green());
+            telemetry.addData("Blue ", colorSensor.blue());
+            telemetry.addData("Hue", hsvValues[0]);
+
+            relativeLayout.post(new Runnable() {
+                public void run() {
+                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+                }
+            });
+
+            telemetry.update();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            i = i + 1;
+            if (colorSensor.blue() >= 1) {
+                telemetry.addData("BLUE BLUE BLUE", colorSensor.blue());
+                sleep(1000);
+                //move the opposite way the sensor is facing
+                DriveStraightDistance(150, .5);
+                i = 500;
+            } else if (colorSensor.red() >= 1) {
+                telemetry.addData("RED RED RED", colorSensor.red());
+                sleep(1000);
+                //move the way the sensor is facing
+                DriveStraightDistance(-150, .5);
+                i = 500;
+            }
+
         }
     }
 
-    void StrafeRight (int position){
-        robot.FrontRight.setTargetPosition(-position);
-        if (robot.FrontRight.getCurrentPosition() > -position - 2) {
-            robot.FrontRight.setPower(-0.7);
-        }
-        else if (robot.FrontRight.getCurrentPosition() < -position + 2){
-            robot.FrontRight.setPower(0.7);
+
+    public void DriveStraight(double power){
+        robot.FrontRight.setPower(power);
+        robot.FrontLeft.setPower(power);
+        robot.RearRight.setPower(power);
+        robot.RearLeft.setPower(power);
+    }
+    public void StopDriving (){
+        DriveStraight(0);
+    }
+    public void DriveStraightDistance(int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(-distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+
+        while(robot.FrontRight.isBusy() && robot.RearLeft.isBusy() && robot.RearRight.isBusy() && robot.FrontLeft.isBusy()){
+            Telemetry();
         }
 
-        robot.FrontLeft.setTargetPosition(position);
-        if (robot.FrontLeft.getCurrentPosition() > position - 2) {
-            robot.FrontLeft.setPower(-0.7);
-        }
-        else if (robot.FrontLeft.getCurrentPosition() < position + 2){
-            robot.FrontLeft.setPower(0.7);
-        }
-
-        robot.RearRight.setTargetPosition(position);
-        if (robot.RearRight.getCurrentPosition() > position - 2) {
-            robot.RearRight.setPower(-0.7);
-        }
-        else if (robot.RearRight.getCurrentPosition() < position + 2){
-            robot.RearRight.setPower(0.7);
-        }
-
-        robot.RearLeft.setTargetPosition(-position);
-        if (robot.RearLeft.getCurrentPosition() > -position - 2) {
-            robot.RearLeft.setPower(-0.7);
-        }
-        else if (robot.RearLeft.getCurrentPosition() < -position + 2) {
-            robot.RearLeft.setPower(0.7);
-        }
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void StrafeLeft (int position){
-        robot.FrontRight.setTargetPosition(position);
-        if (robot.FrontRight.getCurrentPosition() > position - 2) {
-            robot.FrontRight.setPower(-0.7);
-        }
-        else if (robot.FrontRight.getCurrentPosition() < position + 2){
-            robot.FrontRight.setPower(0.7);
+    public void ReturnToStart(int distance, double power){
+        telemetry.addData("Driving", "Yes");
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(-distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+
+        while(robot.FrontRight.isBusy() && robot.RearLeft.isBusy() && robot.RearRight.isBusy() && robot.FrontLeft.isBusy()){
+            Telemetry();
         }
 
-        robot.FrontLeft.setTargetPosition(-position);
-        if (robot.FrontLeft.getCurrentPosition() > -position - 2) {
-            robot.FrontLeft.setPower(-0.7);
-        }
-        else if (robot.FrontLeft.getCurrentPosition() < -position + 2){
-            robot.FrontLeft.setPower(0.7);
-        }
-
-        robot.RearRight.setTargetPosition(-position);
-        if (robot.RearRight.getCurrentPosition() > -position - 2) {
-            robot.RearRight.setPower(-0.7);
-        }
-        else if (robot.RearRight.getCurrentPosition() < -position + 2){
-            robot.RearRight.setPower(0.7);
-        }
-
-        robot.RearLeft.setTargetPosition(position);
-        if (robot.RearLeft.getCurrentPosition() > position - 2) {
-            robot.RearLeft.setPower(-0.7);
-        }
-        else if (robot.RearLeft.getCurrentPosition() < position + 2) {
-            robot.RearLeft.setPower(0.7);
-        }
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    
+
     void ClawGrab () {
         robot.rightPaddle.setPosition(0.5);
         robot.leftPaddle.setPosition(0.64);
@@ -178,23 +171,22 @@
         robot.leftPaddle.setPosition(0.44);
     }
 
-SECOND HALF
+    void Telemetry () {
+        telemetry.addData("FR_Power", "%.2f",robot.FrontRight.getPower());
+        telemetry.addData("RR_Power", "%.2f",robot.RearRight.getPower());
+        telemetry.addData("FL_Power", "%.2f",robot.FrontLeft.getPower());
+        telemetry.addData("RL_Power", "%.2f",robot.RearLeft.getPower());
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.addData("Left Balance Position", robot.LeftBalance.getPosition());
+        telemetry.addData("Right Balance Position", robot.RightBalance.getPosition());
+        telemetry.addData("GlyphLift Current Position", robot.GlyphLift.getCurrentPosition());
+        telemetry.addData("GlyphLift Target Position", robot.GlyphLift.getTargetPosition());
+        telemetry.addData("GlyphLift Power", robot.GlyphLift.getPower());
+        telemetry.addData("gemServo", robot.gemServo.getPosition());
+        telemetry.update();
+    }
+}
 
-
-
-
-
-
-            if (colorSensor.blue() >= 2) {
-                telemetry.addData("BLUE BLUE BLUE", colorSensor.blue());
-                //move the opposite way the sensor is facing
-                **DriveStraight(0.2, -360);**
-                telemetry.update();
-                i = 500;
-            } else if (colorSensor.red() >= 2) {
-                telemetry.addData("RED RED RED", colorSensor.red());
-                //move the way the sensor is facing
-                **DriveStraight(0.2, 360);**
-                telemetry.update();
-                i = 500;
-            }
