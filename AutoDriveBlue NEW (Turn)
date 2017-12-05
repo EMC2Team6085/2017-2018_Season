@@ -23,13 +23,14 @@ public class AutoDriveBlue extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
+        robot.GlyphLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.LeftBalance.setPosition(servoPos1);
         robot.RightBalance.setPosition(1 - servoPos1);
-        robot.GlyphLift.setTargetPosition(0);
+        GlyphLift(0,1);
         Telemetry();
         waitForStart();
         ClawRelease();
@@ -40,10 +41,14 @@ public class AutoDriveBlue extends LinearOpMode {
         sleep(50);
         robot.gemServo.setPosition(1);
         sleep(500);
-        ReturnToStart(0, 0.5);
+        ReturnToStart(0, 0.3);
+        DriveStraightDistance(-500, 0.5);
         ClawGrab();
-        DriveStraightDistance(-1080, 0.5);
-        Turn(0.5, "right");
+        GlyphLift(1050, 0.3);
+        DriveStraightDistance(3000, 0.5);
+        Turn(2000, 0.5);
+        //drive forward
+        GlyphLift(0,0.3);
         ClawRelease();
     }
 
@@ -85,13 +90,13 @@ public class AutoDriveBlue extends LinearOpMode {
                 telemetry.addData("BLUE BLUE BLUE", colorSensor.blue());
                 sleep(1000);
                 //move the opposite way the sensor is facing
-                DriveStraightDistance(150, .5);
+                DriveStraightDistance(150, .3);
                 i = 500;
             } else if (colorSensor.red() >= 1) {
                 telemetry.addData("RED RED RED", colorSensor.red());
                 sleep(1000);
                 //move the way the sensor is facing
-                DriveStraightDistance(-150, .5);
+                DriveStraightDistance(-150, .3);
                 i = 500;
             }
 
@@ -138,34 +143,24 @@ public class AutoDriveBlue extends LinearOpMode {
         robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void TurnPower (java.lang.String direction, double power){
-        if (direction == "right"){
-            robot.FrontRight.setPower(-power);
-            robot.FrontLeft.setPower(power);
-            robot.RearRight.setPower(-power);
-            robot.RearLeft.setPower(power);
-        }
-        else if (direction == "left");{
-            robot.FrontRight.setPower(power);
-            robot.FrontLeft.setPower(-power);
-            robot.RearRight.setPower(power);
-            robot.RearLeft.setPower(-power);
-        }
-    }
-
-    void Turn (double power, java.lang.String direction){
+    void Turn (int distance, double power){
         telemetry.addData("Driving", "Yes");
         robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(distance);
+
         robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        TurnPower(direction, power);
+        DriveStraight(power);
 
         while(robot.FrontRight.isBusy() && robot.RearLeft.isBusy() && robot.RearRight.isBusy() && robot.FrontLeft.isBusy()){
             Telemetry();
@@ -202,6 +197,23 @@ public class AutoDriveBlue extends LinearOpMode {
         robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void GlyphLift (int distance, double power){
+
+        robot.GlyphLift.setTargetPosition(distance);
+
+        robot.GlyphLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.GlyphLift.setPower(power);
+
+        while(robot.GlyphLift.isBusy()){
+            Telemetry();
+        }
+
+        robot.GlyphLift.setPower(0);
+
+        robot.GlyphLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void ClawGrab () {
