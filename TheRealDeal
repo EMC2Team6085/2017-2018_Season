@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Season17and18;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="TheRealDeal", group="TeleOp17")
 public class TheRealDeal extends OpMode {
@@ -12,7 +13,9 @@ public class TheRealDeal extends OpMode {
     private static final double liftFloor = 0;
     private static final double liftMid = 1050;
     private static final double liftCeil = 2300;
-    private static final double liftSpeed = 0.3;
+    private static final double liftSpeed = 0.8;
+    int rotCeil = 325;
+    int rotFloor = 0;
     private HardwareMapping robot = new HardwareMapping();
 
     @Override
@@ -21,20 +24,121 @@ public class TheRealDeal extends OpMode {
         * The init() method of the hardware class does all the work here
         */
         robot.init(hardwareMap);
+        robot.GlyphLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.GlyphLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RotMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RotMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.LeftBalance.setPosition(servoPos1);
         robot.RightBalance.setPosition(1 - servoPos1);
         robot.GlyphLift.setTargetPosition(0);
         robot.gemServo.setPosition(1);
-        robot.leftPaddle.setPosition(0.5);
-        robot.rightPaddle.setPosition(0.5);
+        robot.rightPaddle.setPosition(1);
+        robot.leftPaddle.setPosition(0);
     }
-    private void Paddle (double position){
+
+    void Telemetry (){
+        telemetry.addData("FR_Power", "%.2f",robot.FrontRight.getPower());
+        telemetry.addData("RR_Power", "%.2f",robot.RearRight.getPower());
+        telemetry.addData("FL_Power", "%.2f",robot.FrontLeft.getPower());
+        telemetry.addData("RL_Power", "%.2f",robot.RearLeft.getPower());
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.addData("Left Balance Position", robot.LeftBalance.getPosition());
+        telemetry.addData("Right Balance Position", robot.RightBalance.getPosition());
+        telemetry.addData("GlyphLift Current Position", robot.GlyphLift.getCurrentPosition());
+        telemetry.addData("GlyphLift Target Position", robot.GlyphLift.getTargetPosition());
+        telemetry.addData("GlyphLift Power", robot.GlyphLift.getPower());
+        telemetry.addData("gemServo", robot.gemServo.getPosition());
+        telemetry.addData("GlyphRight", robot.rightPaddle.getPosition());
+        telemetry.addData("GlyphLeft", robot.leftPaddle.getPosition());
+        telemetry.addData("RotMotor Current Position", robot.RotMotor.getCurrentPosition());
+        telemetry.addData("RotMotor Target Position", robot.RotMotor.getTargetPosition());
+        telemetry.addData("RotMotor Power", robot.RotMotor.getPower());
+
+        telemetry.update();
+    }
+
+    void Paddle (double position){
         robot.rightPaddle.setPosition(position);
-        robot.leftPaddle.setPosition(1 - position + 0.14);
+        robot.leftPaddle.setPosition(1 - position);
     }
-        //public void Telemetry (double name, double object){
-            //telemetry.addData("name", )
-        //}
+
+    void DriveStraight(double power){
+        robot.FrontRight.setPower(power);
+        robot.FrontLeft.setPower(power);
+        robot.RearRight.setPower(power);
+        robot.RearLeft.setPower(power);
+    }
+
+    void StopDriving (){
+        DriveStraight(0);
+    }
+
+    void DriveStraightDistance(int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(-distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+
+        while(robot.FrontRight.isBusy() && robot.RearLeft.isBusy() && robot.RearRight.isBusy() && robot.FrontLeft.isBusy()){
+            Telemetry();
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void StrafeDistance (int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(distance);
+        robot.RearRight.setTargetPosition(-distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+
+        while(robot.FrontRight.isBusy() && robot.RearLeft.isBusy() && robot.RearRight.isBusy() && robot.FrontLeft.isBusy()){
+            Telemetry();
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 
     @Override
     public void loop() {
@@ -45,9 +149,9 @@ public class TheRealDeal extends OpMode {
         left = -gamepad1.left_stick_y;
         right = -gamepad1.right_stick_y;
 
+        if (gamepad1.right_bumper){
+            //Strafe Right
 
-        //Strafe Right
-        if (gamepad1.dpad_right){
             //Right Side
             robot.FrontRight.setPower(-STRAFE_POWER);
             robot.RearRight.setPower(STRAFE_POWER);
@@ -57,8 +161,8 @@ public class TheRealDeal extends OpMode {
             robot.RearLeft.setPower(STRAFE_POWER);
         }
         else
-        if (gamepad1.dpad_left){
-            //Strafe Right
+        if (gamepad1.left_bumper){
+            //Strafe Left
 
             //Right Side
             robot.FrontRight.setPower(STRAFE_POWER);
@@ -69,7 +173,6 @@ public class TheRealDeal extends OpMode {
             robot.RearLeft.setPower(-STRAFE_POWER);
         }
         else {
-            //Strafe Left
 
             //Left Side
             robot.FrontLeft.setPower(left);
@@ -78,6 +181,19 @@ public class TheRealDeal extends OpMode {
             //Right Side
             robot.FrontRight.setPower(-right);
             robot.RearRight.setPower(-right);
+        }
+
+        if(gamepad1.dpad_up){
+            DriveStraightDistance(500, 0.7);
+        }
+        if(gamepad1.dpad_down){
+            DriveStraightDistance(-500, 0.7);
+        }
+        if(gamepad1.dpad_right){
+            StrafeDistance(500, 0.7);
+        }
+        if(gamepad1.dpad_left){
+            StrafeDistance(-500, 0.7);
         }
 
         if (gamepad1.a){
@@ -101,7 +217,7 @@ public class TheRealDeal extends OpMode {
             else{
                 robot.GlyphLift.setPower(0);
             }
-            telemetry.update();
+            Telemetry();
         }
         else if (gamepad2.dpad_left) {
             robot.GlyphLift.setTargetPosition(1050);
@@ -126,34 +242,52 @@ public class TheRealDeal extends OpMode {
             else{
                 robot.GlyphLift.setPower(0);
             }
-            telemetry.update();
+            Telemetry();
         }
 
         if (gamepad2.b){
-            Paddle(0.5);
+            Paddle(1);
         }
         if (gamepad2.a){
-            Paddle(0.7);
+            Paddle(0.55);
         }
-        // Send telemetry message to signify robot running;
-        telemetry.addData("left", "%.2f", left);
-        telemetry.addData("right", "%.2f", right);
-        telemetry.addData("FR_Power", "%.2f",robot.FrontRight.getPower());
-        telemetry.addData("RR_Power", "%.2f",robot.RearRight.getPower());
-        telemetry.addData("FL_Power", "%.2f",robot.FrontLeft.getPower());
-        telemetry.addData("RL_Power", "%.2f",robot.RearLeft.getPower());
-        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
-        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
-        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
-        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
-        telemetry.addData("Left Balance Position", robot.LeftBalance.getPosition());
-        telemetry.addData("Right Balance Position", robot.RightBalance.getPosition());
-        telemetry.addData("GlyphLift Current Position", robot.GlyphLift.getCurrentPosition());
-        telemetry.addData("GlyphLift Target Position", robot.GlyphLift.getTargetPosition());
-        telemetry.addData("GlyphLift Power", robot.GlyphLift.getPower());
-        telemetry.addData("gemServo", robot.gemServo.getPosition());
 
-        telemetry.update();
+        if (gamepad2.y){
+            robot.RotMotor.setTargetPosition(rotCeil);
+            if(robot.RotMotor.getCurrentPosition() < rotCeil){
+                robot.RotMotor.setPower(0.3);
+                if(robot.RotMotor.getCurrentPosition() > rotCeil/1.2){
+                robot.RotMotor.setPower(0);
+                }
+            }
+            else if(robot.RotMotor.getCurrentPosition() > rotCeil){
+                robot.RotMotor.setPower(-0.05);
+            }
+            else{
+                robot.RotMotor.setPower(0);
+            }
+            Telemetry();
+        }
+
+        if (gamepad2.x){
+            robot.RotMotor.setTargetPosition(rotFloor);
+            if (robot.RotMotor.getCurrentPosition() > rotFloor) {
+                robot.RotMotor.setPower(-0.1);
+                if(robot.RotMotor.getCurrentPosition() < rotCeil/1.2){
+                    robot.RotMotor.setPower(0);
+                }
+            }
+            else if (robot.RotMotor.getCurrentPosition() < rotFloor) {
+                robot.RotMotor.setPower(0.05);
+            }
+            else{
+                robot.RotMotor.setPower(0);
+            }
+            Telemetry();
+        }
+
+        // Send telemetry message to signify robot running;
+        Telemetry();
 
     }
 }
