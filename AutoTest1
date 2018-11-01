@@ -1,0 +1,194 @@
+package org.firstinspires.ftc.teamcode.Season18and19;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+@Autonomous(name="AutoTest1", group="Autonomous")
+
+public class AutoTest1 extends LinearOpMode {
+    HWMap2018 robot = new HWMap2018();
+    ElapsedTime timer = new ElapsedTime();
+    double a = 0;
+
+    public void runOpMode() throws InterruptedException {
+        robot.init(hardwareMap);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        timer.reset();
+
+        waitForStart();
+
+        DriveStraightDistance(500, 0.6); //Drive Forward to gold and iron
+        sleep(5000); //Scan for gold and knock it off (to be added)
+        Turn(-2100, 0.4); //turn left
+        DriveStraightDistance(500, 0.6); //Move left
+        Turn(-1050, 0.4); //turn towards crater
+        sleep(5000); //pick up minerals (to be added)
+        DriveStraightDistance(-1000, 0.6); //Drive towards depot
+        sleep(5000); //drop off team marker (to be added)
+        DriveStraightDistance(1250, 0.6); //end in crater
+
+
+    }
+    void DriveStraight(double power){
+        robot.FrontRight.setPower(power);
+        robot.FrontLeft.setPower(power);
+        robot.RearRight.setPower(power);
+        robot.RearLeft.setPower(power);
+    }
+
+    void StopDriving (){
+        DriveStraight(0);
+    }
+
+    void DriveStraightDistance(int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+        a = 0;
+        while((robot.FrontRight.isBusy() || robot.RearLeft.isBusy() || robot.RearRight.isBusy() || robot.FrontLeft.isBusy()) && a < 1500){
+            Telemetry();
+            if(((distance + 20) > robot.FrontRight.getCurrentPosition()) && (robot.FrontRight.getCurrentPosition() > (distance - 20))){
+                a = 1500;
+                Telemetry();
+            }
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void Turn (int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(-distance);
+        robot.FrontLeft.setTargetPosition(distance);
+        robot.RearRight.setTargetPosition(-distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+        a = 0;
+        while((robot.FrontRight.isBusy() || robot.RearLeft.isBusy() || robot.RearRight.isBusy() || robot.FrontLeft.isBusy()) && a < 1500) {
+            Telemetry();
+            if(((distance + 20) > robot.FrontRight.getCurrentPosition()) && (robot.FrontRight.getCurrentPosition() > (distance - 20))){
+                a = 1500;
+                Telemetry();
+            }
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void Strafe (int distance, double power){
+        telemetry.addData("Driving", "Yes");
+        robot.FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(-distance);
+        robot.RearRight.setTargetPosition(-distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+        a = 0;
+        while((robot.FrontRight.isBusy() || robot.RearLeft.isBusy() || robot.RearRight.isBusy() || robot.FrontLeft.isBusy()) && a < 1500){
+            Telemetry();
+            if(((distance + 20) > robot.FrontRight.getCurrentPosition()) && (robot.FrontRight.getCurrentPosition() > (distance - 20))){
+                a = 1500;
+                Telemetry();
+            }
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void ReturnToStart(int distance, double power){
+        telemetry.addData("Driving", "Yes");
+
+        robot.FrontRight.setTargetPosition(distance);
+        robot.FrontLeft.setTargetPosition(distance);
+        robot.RearRight.setTargetPosition(distance);
+        robot.RearLeft.setTargetPosition(-distance);
+
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        DriveStraight(power);
+        a = 0;
+        while((robot.FrontRight.isBusy() || robot.RearLeft.isBusy() || robot.RearRight.isBusy() || robot.FrontLeft.isBusy()) && a < 1500){
+            Telemetry();
+            if(((distance + 20) > robot.FrontRight.getCurrentPosition()) && (robot.FrontRight.getCurrentPosition() > (distance - 20))){
+                a = 1500;
+                Telemetry();
+            }
+        }
+
+        StopDriving();
+        robot.FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.RearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    void Telemetry () {
+        telemetry.addData("FR_Power", "%.2f", robot.FrontRight.getPower());
+        telemetry.addData("RR_Power", "%.2f", robot.RearRight.getPower());
+        telemetry.addData("FL_Power", "%.2f", robot.FrontLeft.getPower());
+        telemetry.addData("RL_Power", "%.2f", robot.RearLeft.getPower());
+        telemetry.addData("Front Right Encoder Position", robot.FrontRight.getCurrentPosition());
+        telemetry.addData("Front Right Encoder Target", robot.FrontRight.getTargetPosition());
+        telemetry.addData("Rear Right Encoder Position", robot.RearRight.getCurrentPosition());
+        telemetry.addData("Rear Right Encoder Target", robot.RearRight.getTargetPosition());
+        telemetry.addData("Front Left Encoder Position", robot.FrontLeft.getCurrentPosition());
+        telemetry.addData("Front Left Encoder Target", robot.FrontLeft.getTargetPosition());
+        telemetry.addData("Rear Left Encoder Position", robot.RearLeft.getCurrentPosition());
+        telemetry.addData("Rear Left Encoder Target", robot.RearLeft.getTargetPosition());
+    }
+}
