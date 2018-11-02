@@ -10,10 +10,16 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 @Autonomous(name="ColorTest", group="Autonomous")
 
-public class Color_sensor extends LinearOpMode{
+public abstract class Color_sensor extends LinearOpMode{
     HWMap2018 robot = new HWMap2018();
     ColorSensor ColorRight;
+    ColorSensor ColorLeft;
     double i = 0;
+    double color1 = 0;
+    double color2 = 0;
+    String Right = "Gold is on the right";
+    String Left = "Gold is on the left";
+    String Center = "Gold is in the center";
 
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
@@ -22,7 +28,6 @@ public class Color_sensor extends LinearOpMode{
     }
 
     public void ColorSense() {
-        ColorRight.enableLed(false);
         while (i < 500) {
 
             float hsvValues[] = {0F, 0F, 0F};
@@ -33,13 +38,20 @@ public class Color_sensor extends LinearOpMode{
             final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
             ColorRight = hardwareMap.get(ColorSensor.class, "ColorRight");
-
+            ColorLeft = hardwareMap.get(ColorSensor.class, "ColorLeft");
 
             Color.RGBToHSV(ColorRight.red() * 8, ColorRight.green() * 8, ColorRight.blue() * 8, hsvValues);
             telemetry.addData("Clear", ColorRight.alpha());
             telemetry.addData("Red  ", ColorRight.red());
             telemetry.addData("Green", ColorRight.green());
             telemetry.addData("Blue ", ColorRight.blue());
+            telemetry.addData("Hue", hsvValues[0]);
+
+            Color.RGBToHSV(ColorLeft.red() * 8, ColorLeft.green() * 8, ColorLeft.blue() * 8, hsvValues);
+            telemetry.addData("Clear", ColorLeft.alpha());
+            telemetry.addData("Red  ", ColorLeft.red());
+            telemetry.addData("Green", ColorLeft.green());
+            telemetry.addData("Blue ", ColorLeft.blue());
             telemetry.addData("Hue", hsvValues[0]);
 
             relativeLayout.post(new Runnable() {
@@ -59,12 +71,45 @@ public class Color_sensor extends LinearOpMode{
                 telemetry.addData("White", ColorRight.blue());
                 telemetry.update();
                 sleep(5000);
+                color1 = 1;
                 i = 500;
             } else if (ColorRight.red() >= 1 && ColorRight.green() >= 1) {
                 telemetry.addData("Yellow", ColorRight.red());
                 telemetry.update();
                 sleep(5000);
+                color1 = 2;
                 i = 500;
+            }
+
+            if (ColorLeft.blue() >= 1 && ColorLeft.red() >= 1 && ColorLeft.green() >= 1) {
+                telemetry.addData("White", ColorLeft.blue());
+                telemetry.update();
+                sleep(5000);
+                color2 = 1;
+                i = 500;
+            } else if (ColorLeft.red() >= 1 && ColorLeft.green() >= 1) {
+                telemetry.addData("Yellow", ColorLeft.red());
+                telemetry.update();
+                sleep(5000);
+                color2 = 2;
+                i = 500;
+            }
+        }
+        if(color1 == 1) {
+            if (color2 == 1) {
+                telemetry.addData(Right, null);
+                sleep(10000);
+            } else {
+                telemetry.addData(Center, null);
+                sleep(10000);
+            }
+        }
+            else {
+            if (color2 == 1) {
+                telemetry.addData(Left, null);
+                sleep(10000);
+            } else {
+                telemetry.addData("If this message appears, you put two gold in front of the sensors. How could you.", null);
             }
         }
     }
